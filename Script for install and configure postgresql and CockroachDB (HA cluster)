@@ -1,0 +1,79 @@
+sudo apt-get update -y
+sudo apt-get upgrade -y
+
+sudo apt-get install -y postgresql postgresql-contrib
+
+
+sudo systemctl enable postgresql
+sudo systemctl start postgresql
+
+
+sudo systemctl status postgresql
+
+
+sudo -i -u postgres
+
+
+psql -c "CREATE USER myuser WITH PASSWORD 'mypassword';"
+psql -c "CREATE DATABASE mydb;"
+psql -c "GRANT ALL PRIVILEGES ON DATABASE mydb TO myuser;"
+
+exit
+
+sudo sed -i "s/^#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/*/main/postgresql.conf
+echo "host    all             all             0.0.0.0/0               md5" | sudo tee -a /etc/postgresql/*/main/pg_hba.conf
+
+
+sudo systemctl restart postgresql
+
+
+psql -h localhost -U myuser -d mydb -W
+
+
+curl https://binaries.cockroachdb.com/cockroach-v23.1.8.linux-amd64.tgz | tar -xz
+sudo cp -i cockroach-v23.1.8.linux-amd64/cockroach /usr/local/bin/
+
+
+cockroach version
+
+sudo mkdir -p /etc/systemd/system/cockroach.service.d
+echo -e "[Service]\nLimitNOFILE=262144\nLimitNPROC=16384" | sudo tee /etc/systemd/system/cockroach.service.d/override.conf
+
+
+sudo systemctl daemon-reload
+
+sudo mkdir -p /mnt/data/cockroach
+
+cockroach start --insecure --store=/mnt/data/cockroach --listen-addr=localhost:26257 --http-addr=localhost:8080 --join=localhost:26257 --background
+
+cockroach init --insecure --host=localhost:26257
+
+cockroach node status --insecure --host=localhost:26257
+
+cockroach start --insecure --store=/mnt/data/cockroach --listen-addr=localhost:26257 --http-addr=localhost:8080 --join=node-1:26257 --background
+
+cockroach node status --insecure --host=node-1:26257
+
+
+sudo apt-get install -y haproxy
+
+sudo nano /etc/haproxy/haproxy.cfg
+
+frontend http_front
+   bind *:8080
+   default_backend cockroach_back
+
+backend cockroach_back
+   balance roundrobin
+   server node-1 192.168.1.1:8080 check
+   server node-2 192.168.1.2:8080 check
+   server node-3 192.168.1.3:8080 check
+
+sudo systemctl restart haproxy
+
+psql -h <your-server-ip> -U myuser -d mydb -W
+
+http://<your-server-ip>:8080
+
+cockroach node status --insecure --host=<your-server-ip>:26257
+
