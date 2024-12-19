@@ -1,0 +1,35 @@
+sudo apt update
+sudo apt install -y curl openssh-server ca-certificates tzdata perl
+curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash
+
+sudo EXTERNAL_URL="http://gitlab.example.com" apt-get install gitlab-ce
+
+sudo -u postgres psql
+
+CREATE DATABASE gitlabhq_production;
+CREATE USER gitlabuser WITH PASSWORD 'yourpassword';
+ALTER ROLE gitlabuser SET client_encoding TO 'utf8';
+ALTER ROLE gitlabuser SET default_transaction_isolation TO 'read committed';
+ALTER ROLE gitlabuser SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE gitlabhq_production TO gitlabuser;
+
+\q
+
+sudo nano /etc/gitlab/gitlab.rb
+
+postgresql['enable'] = false 
+gitlab_rails['db_adapter'] = 'postgresql'
+gitlab_rails['db_encoding'] = 'unicode'
+gitlab_rails['db_host'] = 'your-db-server.com'  
+gitlab_rails['db_port'] = 5432  
+gitlab_rails['db_database'] = 'gitlabhq_production'
+gitlab_rails['db_username'] = 'gitlabuser'
+gitlab_rails['db_password'] = 'yourpassword'  
+
+sudo gitlab-ctl reconfigure
+
+nginx['ssl_certificate'] = "/etc/gitlab/ssl/gitlab.example.com.crt"
+nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/gitlab.example.com.key"
+
+sudo gitlab-ctl reconfigure
+
