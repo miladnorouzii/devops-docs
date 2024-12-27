@@ -1,0 +1,108 @@
+sudo apt update
+sudo apt install nginx
+
+sudo systemctl start nginx
+sudo systemctl enable nginx
+
+sudo apt install mariadb-server
+
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+
+sudo mysql_secure_installation
+
+sudo apt install php-fpm php-mysql php-cli php-xml php-mbstring php-curl php-zip
+
+sudo systemctl start php7.x-fpm  
+sudo systemctl enable php7.x-fpm
+
+sudo nano /etc/nginx/sites-available/wordpress
+
+server {
+    listen 80;
+    server_name your_domain_or_IP;
+
+    root /var/www/wordpress;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.x-fpm.sock;  
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+
+    error_log /var/log/nginx/wordpress_error.log;
+    access_log /var/log/nginx/wordpress_access.log;
+}
+
+sudo ln -s /etc/nginx/sites-available/wordpress /etc/nginx/sites-enabled/
+
+sudo nginx -t
+
+sudo systemctl reload nginx
+
+cd /var/www
+sudo wget https://wordpress.org/latest.tar.gz
+sudo tar -xzvf latest.tar.gz
+sudo mv wordpress /var/www/wordpress
+
+sudo chown -R www-data:www-data /var/www/wordpress
+sudo chmod -R 755 /var/www/wordpress
+
+sudo mysql -u root -p
+
+CREATE DATABASE wordpress;
+GRANT ALL PRIVILEGES ON wordpress.* TO 'wp_user'@'localhost' IDENTIFIED BY 'your_password';
+FLUSH PRIVILEGES;
+EXIT;
+
+cd /var/www/wordpress
+
+sudo cp wp-config-sample.php wp-config.php
+
+sudo nano wp-config.php
+
+define( 'DB_NAME', 'wordpress' );
+define( 'DB_USER', 'wp_user' );
+define( 'DB_PASSWORD', 'your_password' );
+define( 'DB_HOST', 'localhost' );
+
+sudo apt install iptables
+
+sudo iptables -P INPUT DROP
+sudo iptables -P FORWARD DROP
+sudo iptables -P OUTPUT ACCEPT
+sudo iptables -A INPUT -i lo -j ACCEPT  
+sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT  
+sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT  
+sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT  
+
+sudo iptables-save > /etc/iptables/rules.v4
+
+sudo apt install lvm2
+
+sudo pvcreate /dev/sdb  
+
+sudo vgcreate my_volume_group /dev/sdb  
+
+sudo lvcreate -n my_logical_volume -L 10G my_volume_group  
+
+sudo mkfs.ext4 /dev/my_volume_group/my_logical_volume
+
+sudo mount /dev/my_volume_group/my_logical_volume /mnt
+
+sudo nano /etc/fstab
+
+/dev/my_volume_group/my_logical_volume /mnt ext4 defaults 0 0
+
+
+

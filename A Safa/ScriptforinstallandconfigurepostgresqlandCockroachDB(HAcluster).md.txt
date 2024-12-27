@@ -1,0 +1,95 @@
+# Update and upgrade packages
+sudo apt-get update -y
+sudo apt-get upgrade -y
+
+# Install PostgreSQL and its additional modules
+sudo apt-get install -y postgresql postgresql-contrib
+
+# Enable and start PostgreSQL service
+sudo systemctl enable postgresql
+sudo systemctl start postgresql
+
+# Check PostgreSQL status
+sudo systemctl status postgresql
+
+# Switch to postgres user
+sudo -i -u postgres
+
+# Create a PostgreSQL user, database, and grant privileges
+psql -c "CREATE USER myuser WITH PASSWORD 'mypassword';"
+psql -c "CREATE DATABASE mydb;"
+psql -c "GRANT ALL PRIVILEGES ON DATABASE mydb TO myuser;"
+
+# Exit from postgres user
+exit
+
+# Modify PostgreSQL configuration for remote connections
+sudo sed -i "s/^#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/*/main/postgresql.conf
+echo "host    all             all             0.0.0.0/0               md5" | sudo tee -a /etc/postgresql/*/main/pg_hba.conf
+
+# Restart PostgreSQL service to apply changes
+sudo systemctl restart postgresql
+
+# Connect to PostgreSQL database
+psql -h localhost -U myuser -d mydb -W
+
+# Install CockroachDB
+curl https://binaries.cockroachdb.com/cockroach-v23.1.8.linux-amd64.tgz | tar -xz
+sudo cp -i cockroach-v23.1.8.linux-amd64/cockroach /usr/local/bin/
+
+# Verify CockroachDB version
+cockroach version
+
+# Configure CockroachDB service limits
+sudo mkdir -p /etc/systemd/system/cockroach.service.d
+echo -e "[Service]\nLimitNOFILE=262144\nLimitNPROC=16384" | sudo tee /etc/systemd/system/cockroach.service.d/override.conf
+
+# Reload systemd to apply the new service configuration
+sudo systemctl daemon-reload
+
+# Prepare data directory for CockroachDB
+sudo mkdir -p /mnt/data/cockroach
+
+# Start CockroachDB node in insecure mode
+cockroach start --insecure --store=/mnt/data/cockroach --listen-addr=localhost:26257 --http-addr=localhost:8080 --join=localhost:26257 --background
+
+# Initialize CockroachDB cluster
+cockroach init --insecure --host=localhost:26257
+
+# Check the status of CockroachDB nodes
+cockroach node status --insecure --host=localhost:26257
+
+# Start another CockroachDB node (example: node-2)
+cockroach start --insecure --store=/mnt/data/cockroach --listen-addr=localhost:26257 --http-addr=localhost:8080 --join=node-1:26257 --background
+
+# Check the status of the second CockroachDB node
+cockroach node status --insecure --host=node-1:26257
+
+# Install HAProxy
+sudo apt-get install -y haproxy
+
+# Edit HAProxy configuration for CockroachDB
+sudo nano /etc/haproxy/haproxy.cfg
+
+# HAProxy configuration for CockroachDB load balancing
+frontend http_front
+   bind *:8080
+   default_backend cockroach_back
+
+backend cockroach_back
+   balance roundrobin
+   server node-1 192.168.1.1:8080 check
+   server node-2 192.168.1.2:8080 check
+   server node-3 192.168.1.3:8080 check
+
+# Restart HAProxy to apply the new configuration
+sudo systemctl restart haproxy
+
+# Connect to PostgreSQL via HAProxy
+psql -h <your-server-ip> -U myuser -d mydb -W
+
+# Access CockroachDB's web UI
+http://<your-server-ip>:8080
+
+# Check the status of CockroachDB node via HAProxy
+cockroach node status --insecure --host=<your-server-ip>:26257

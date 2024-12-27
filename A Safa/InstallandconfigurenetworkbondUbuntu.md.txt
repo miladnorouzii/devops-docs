@@ -1,0 +1,58 @@
+sudo modprobe bonding
+
+echo "bonding" | sudo tee -a /etc/modules
+
+sudo nano /etc/netplan/01-netcfg.yaml
+
+# Netplan configuration for bonding
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0: {}
+    eth1: {}
+  bonds:
+    bond0:
+      interfaces: [eth0, eth1]
+      parameters:
+        mode: 802.3ad          # LACP mode
+        miimon: 100            # MII monitoring frequency (ms)
+        updelay: 200           # Delay before bringing an interface up (ms)
+        downdelay: 200         # Delay before taking an interface down (ms)
+        arp_interval: 1000     # ARP interval (ms)
+        arp_ip_target: 192.168.1.1 # IP target for ARP monitoring
+      dhcp4: true               # Enable DHCP
+
+      addresses:
+        - 192.168.1.100/24      # Static IP
+      gateway4: 192.168.1.1     # Default gateway
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
+
+sudo netplan apply
+
+cat /proc/net/bonding/bond0
+
+sudo nano /etc/network/interfaces
+
+# /etc/network/interfaces configuration for bonding
+auto bond0
+iface bond0 inet dhcp
+    bond-mode 802.3ad     # LACP bonding mode
+    bond-miimon 100       # MII monitoring frequency (ms)
+    bond-updelay 200      # Delay before bringing interface up (ms)
+    bond-downdelay 200    # Delay before taking interface down (ms)
+    bond-arp_interval 1000 # ARP interval (ms)
+    bond-arp_ip_target 192.168.1.1 # IP target for ARP monitoring
+    slaves eth0 eth1      # Slave interfaces
+
+# iface bond0 inet static
+#     address 192.168.1.100
+#     netmask 255.255.255.0
+#     gateway 192.168.1.1
+
+sudo systemctl restart networking
+
+cat /proc/net/bonding/bond0
