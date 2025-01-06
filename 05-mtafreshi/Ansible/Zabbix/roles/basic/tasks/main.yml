@@ -1,0 +1,85 @@
+---
+# tasks file for basic
+
+- name: Install zabbix and Requirment
+  apt:
+    name:
+      - zabbix-server-pgsql
+      - zabbix-frontend-php
+      - php8.3-pgsql
+      - zabbix-apache-conf
+      - zabbix-sql-scripts
+      - zabbix-agent
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
+      - libpq-dev
+    state: present
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Start Postgres Services
+  service:
+    name: postgresql
+    state: started
+    enabled: yes
+
+      #- name: IP
+      #  shell:
+      #    cmd: hostname -I | awk '{print $2}'
+      #  register: output_file
+      #
+      #- name: Set IP
+      #  lineinfile:
+      #    path: /etc/postgresql/16/main/postgresql.conf
+      #    regexp: "^#listen_addresses = 'localhost'"
+      #    line: "listen_addresses = '{{ output_file.stdout }}'"
+      #    owner: root
+      #    group: root
+      #    mode: 0644
+      #
+      #- name: Restart postgres services
+      #  service:
+      #    name: postgresql
+      #    state: restarted
+
+- name: Config postgres
+  shell: |
+      sudo -u postgres psql <<EOF
+      CREATE USER zabbix WITH PASSWORD '123456';
+      CREATE DATABASE zabbix OWNER zabbix;
+      GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO zabbix;
+      \q
+      EOF
+
+- name: ZCAT
+  shell: |
+      zcat /usr/share/zabbix-sql-scripts/postgresql/server.sql.gz | sudo -u zabbix psql zabbix
+
+- name: Add Password in Database Config File
+  lineinfile:
+    path: "{{ db }}"
+    regexp: '^# DBPassword='
+    line: 'DBPassword=123456'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Restart zabbix-server services
+  service:
+    name: zabbix-server
+    state: restarted
+    enabled: yes
+
+- name: Restart zabbix-agent services
+  service:
+    name: zabbix-agent
+    state: restarted
+    enabled: yes
+
+- name: Restart Appache services
+  service:
+    name: apache2
+    state: restarted
+    enabled: yes
+

@@ -1,0 +1,61 @@
+---
+# tasks file for preinstall
+- name: Set timezone
+  timezone:
+    name: Etc/UTC
+
+- name: Set hostname
+  command: hostnamectl set-hostname {{ inventory_hostname }}
+
+- name: Add hostname to "{{ etc_hosts_path }}"
+  lineinfile:
+    path: "{{ etc_hosts_path }}"
+    regexp: '^127\.0\.1\.1'
+    line: '127.0.1.1 {{ inventory_hostname }} localhost'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Add hostname to "{{ etc_hosts_path }}"
+  lineinfile:
+    path: "{{ etc_hosts_path }}"
+    regexp: '^127\.0\.0\.1'
+    line: '127.0.0.1 {{ inventory_hostname }} localhost'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install necessary packages
+  apt:
+    name:
+      - vim
+      - sudo
+      - wget
+      - curl
+      - git
+      - nload
+      - htop
+      - net-tools
+    state: present
+    update_cache: yes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

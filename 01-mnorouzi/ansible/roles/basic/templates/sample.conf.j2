@@ -1,0 +1,35 @@
+server {
+  listen {{ nginx_http_port }};
+  server_name {{ nginx_server_name }};
+}
+server {
+  listen {{ nginx_https_port }} ssl;
+  server_name {{ nginx_server_name }};
+
+#####   IF example #######
+  {% if ssl %}
+ssl_certificate     /etc/ssl/{{ nginx_server_name }}.crt;
+  ssl_certificate_key /etc/ssl/{{ nginx_server_name }}.key;
+  {% endif %}
+
+  {% if infra_env == 'production' %}
+   root /var/www/html;
+   access_log /var/log/nginx/production_access.log
+   error_log  /var/log/nginx/production_error.log
+  {% elif infra_env == 'staging' %}
+   root /var/www/staging;
+   access_log /var/log/nginx/staging_access.log
+   error_log  /var/log/nginx/staging_error.log
+  {% elif infra_env == 'development' %}
+   root /var/www/development;
+   access_log /var/log/nginx/development_access.log
+   error_log  /var/log/nginx/development_error.log
+  {% else %}
+   root /var/www/default;
+   access_log /var/log/nginx/default_access.log
+   error_log  /var/log/nginx/default_error.log
+  {% endif%}
+
+  }
+}
+
