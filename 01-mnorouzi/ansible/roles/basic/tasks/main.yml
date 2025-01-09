@@ -1,34 +1,28 @@
 ---
 # tasks file for basic
-- name: Copy issue.net to remote servers
-  copy:
-    src: issue.net
-    dest: "{{ issue_net_path }}"
-   # dest: "/etc/issue.net"
+- block:
+  - name: general setting
+    include_tasks: general.yml
 
-- name: Add banner to sshd config
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^Banner'
-    line: 'Banner /etc/issue.net'
+  - name: Copy resolve.conf to remote servers
+    template:
+      src: resolv.conf.j2
+      dest: /etc/resolv.conf
 
-- name: Restart ssh service
-  service:
-    name: ssh
-    state: restarted
+  - name: debina setting
+    include_tasks: debina.yml
 
-- name: Add MOTD banner to /etc/motd
-  copy:
-    src: motd.txt
-    dest: /etc/motd
+  when: ansible_os_family == "debian"
 
-- name: Copy resolve.conf to remote servers
-  template:
-    src: resolv.conf.j2
-    dest: /etc/resolv.conf
+- block:
+    - name: Copy resolve.conf to remote servers
+      template:
+        src: resolv.conf.j2
+        dest: /etc/resolv.conf
 
-- name: Copy sample confing file
-  template:
-    src: sample.conf.j2
-    dest: /opt/sample.conf
+    - name: Copy sample confing file
+      template:
+        src: sample.conf.j2
+        dest: /opt/sample.conf
 
+  when: ansible_os_family == "debian"

@@ -1,6 +1,26 @@
 - hosts: all
   roles:
-    - role: preinstall
     - role: basic
   gather_facts: yes
   any_errors_fatal: true
+  tags: basic
+
+- hosts: all
+  roles:
+    - role: preinstall
+  gather_facts: yes
+  any_errors_fatal: true
+
+# - hosts: all
+#   roles:
+#     - role: dbsetting
+#   gather_facts: yes
+#   any_errors_fatal: true
+#   tags: db
+
+# - hosts: all
+#   roles:
+#     - role: hardening
+#   gather_facts: yes
+#   any_errors_fatal: true
+

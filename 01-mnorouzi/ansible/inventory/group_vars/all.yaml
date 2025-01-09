@@ -1,5 +1,5 @@
-etc_hosts_path: "/etc/hosts"
-issue_net_path: "/etc/issue.net"
+etc_hosts_path: "et"/etc/hosts"
+issue_net_path: "/etc/issue.n
 
 # DNS setting
 dns_server_1: "1.1.1.1"
@@ -10,16 +10,31 @@ nginx_http_port: "8080"
 nginx_https_port: "6443"
 nginx_server_name: "bmi.ir"
 ssl: true
-infra_env: "staging"
+infra_env: "development"
 
+#### for loop
+my_value:
+  - name
+  - age
+  - job
+  - city
+  - country
+  - phone
 
+my_variable:
+  - name: john
+    age: 30
+    job: developer
+  - name: milad
+    age: 33
+    job: designer
+  - name: ali
+    age: 35
+    job: engineer
 
-
-
-
-
-
-
-
-
-
+app_config:
+  - DOMAIN: "https://app.example.com"
+  - APP_URL: "https://app.example.com"
+  - ADMIN_TOKEN: "1234567890"
+  - DB_URL: "mysql://root:password@db.example.com:3306/app_db"
+  - APP_ENV: "production"

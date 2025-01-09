@@ -33,3 +33,22 @@ ssl_certificate     /etc/ssl/{{ nginx_server_name }}.crt;
   }
 }
 
+############ For example
+
+{% for item in my_value %}
+  test-{{ item }}
+{% endfor %}
+
+{% for item in my_variable %}
+    Name: {{ item.name }}
+    Age:  {{ item.age }}
+    Job: {{ item.job }}
+{% endfor %}
+
+
+{% for env_item in app_config %}
+{% for key, value in env_item.items() %}
+ - {{ key }} = {{ value }}
+{% endfor %}
+{% endfor %}
+
