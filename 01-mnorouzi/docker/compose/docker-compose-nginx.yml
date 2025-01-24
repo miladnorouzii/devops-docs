@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx:1.25
+    ports:
+      - "8080:80"
+    volumes:
+      - /var/www/html:/usr/share/nginx/html
+    restart: always

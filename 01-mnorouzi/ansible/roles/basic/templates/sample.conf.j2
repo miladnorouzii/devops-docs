@@ -5,7 +5,7 @@ server {
 server {
   listen {{ nginx_https_port }} ssl;
   server_name {{ nginx_server_name }};
-
+}
 #####   IF example #######
   {% if ssl %}
 ssl_certificate     /etc/ssl/{{ nginx_server_name }}.crt;
@@ -30,13 +30,17 @@ ssl_certificate     /etc/ssl/{{ nginx_server_name }}.crt;
    error_log  /var/log/nginx/default_error.log
   {% endif%}
 
-  }
-}
-
+ 
 ############ For example
 
 {% for item in my_value %}
   test-{{ item }}
+{% endfor %}
+
+{% for item in my_value %}
+{% for a, b in item.items() %}
+ - {{ a }} == {{ b }}
+{% endfor %}
 {% endfor %}
 
 {% for item in my_variable %}
@@ -44,7 +48,6 @@ ssl_certificate     /etc/ssl/{{ nginx_server_name }}.crt;
     Age:  {{ item.age }}
     Job: {{ item.job }}
 {% endfor %}
-
 
 {% for env_item in app_config %}
 {% for key, value in env_item.items() %}

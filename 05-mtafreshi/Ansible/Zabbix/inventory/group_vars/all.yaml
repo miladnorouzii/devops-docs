@@ -1,2 +1,0 @@
-etc_hosts_path: "/etc/hosts"
-db: "/etc/zabbix/zabbix_server.conf"

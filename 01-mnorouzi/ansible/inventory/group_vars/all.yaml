@@ -1,5 +1,5 @@
-etc_hosts_path: "et"/etc/hosts"
-issue_net_path: "/etc/issue.n
+etc_hosts_path: "/etc/hosts"
+issue_net_path: "/etc/issue.net"
 
 # DNS setting
 dns_server_1: "1.1.1.1"

@@ -4,15 +4,15 @@
   - name: general setting
     include_tasks: general.yml
 
-  - name: Copy resolve.conf to remote servers
-    template:
-      src: resolv.conf.j2
-      dest: /etc/resolv.conf
+      #  - name: Copy resolve.conf to remote servers
+      #    template:
+      #      src: resolv.conf.j2
+      #      dest: /etc/resolv.conf
+      #
+      #  - name: debina setting
+      #    include_tasks: debina.yml
 
-  - name: debina setting
-    include_tasks: debina.yml
-
-  when: ansible_os_family == "debian"
+  when: ansible_os_family == "Debian"
 
 - block:
     - name: Copy resolve.conf to remote servers
@@ -25,4 +25,4 @@
         src: sample.conf.j2
         dest: /opt/sample.conf
 
-  when: ansible_os_family == "debian"
+  when: ansible_os_family == "Debian"
