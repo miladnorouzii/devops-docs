@@ -1,0 +1,19 @@
+---
+# tasks file for basic
+
+- name: Install Postgresql and Requirment
+  apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
+      - libpq-dev
+    state: present
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Start Postgres Services
+  service:
+    name: postgresql
+    state: started
+    enabled: yes

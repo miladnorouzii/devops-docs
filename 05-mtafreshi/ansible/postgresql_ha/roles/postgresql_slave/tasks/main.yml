@@ -1,0 +1,50 @@
+---
+# tasks file for basic
+
+- name: Slave- Check if database is standing by
+  stat:
+    path: "{{ backup_var_path }}"
+  register: backup_status
+
+- name: Find Master Postgresql
+  debug:
+    msg: '{{item}}'
+  with_items: "{{ groups.main }}"
+  register: master_host
+  
+- name: Stop postgres services
+  service:
+    name: postgresql
+    state: stopped
+
+- block:
+
+    - name: Backup "{{ postgresql_var_path }}"
+      copy:
+        src: "{{ postgresql_var_path }}"
+        dest: "{{ backup_var_path }}"
+        remote_src: yes
+
+    - name: Remove Directory
+      ansible.builtin.file:
+        path: "{{ postgresql_var_path }}"
+        state: absent
+
+    - name: run
+      expect:
+        command: sudo -u postgres pg_basebackup -h db-srv-main -D /var/lib/postgresql/16/main/ -U replica -P -v -R -X stream -C -S slaveslot1  
+        responses:
+          'Password:': '{{ vault }}'
+
+    - name: Config Listen Address Postgresql
+      lineinfile:
+        path: "{{ postgresql_path }}"
+        regexp: "^#listen_addresses = 'localhost'"
+        line: "listen_addresses = '{{ ansible_ssh_host }}'"
+        
+  when: backup_status.stat.exists == False
+
+- name: Start postgres services
+  service:
+    name: postgresql
+    state: started

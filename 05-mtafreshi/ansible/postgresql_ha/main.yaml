@@ -1,0 +1,21 @@
+- hosts: all
+  roles:
+    - role: preinstall
+    - role: install
+  gather_facts: yes
+  any_errors_fatal: true
+  become: true
+
+- hosts: main
+  roles:
+    - role: postgresql_master
+  gather_facts: yes
+  any_errors_fatal: true
+  become: true
+
+- hosts: ha
+  roles:
+    - role: postgresql_slave
+  gather_facts: yes
+  any_errors_fatal: true
+  become: true

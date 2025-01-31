@@ -1,0 +1,42 @@
+---
+# tasks file for basic
+
+- name: Config Listen Address Postgresql
+  lineinfile:
+    path: "{{ postgresql_path }}"
+    regexp: "^#listen_addresses = 'localhost'"
+    line: "listen_addresses = '{{ ansible_ssh_host }}'"
+
+- name: Set IP pg_hba for Access
+  lineinfile:
+    path: "{{ pg_hba_path }}"
+    regexp: "^host    all             all             127.0.0.1/32            scram-sha-256"
+    line: "host    all             all             {{ ansible_ssh_host }}/32            trust"
+
+- name: Find HA Postgresql IP Address
+  shell: |
+    tail -n 1 {{ hosts_path }} | awk '{print $2}'
+  register: ha_host
+
+- name: Set IP pg_hba for Replication
+  lineinfile:
+    path: "{{ pg_hba_path }}"
+    line: "host    replication     replica         {{ ha_host.stdout }}                md5"
+
+- name: Restart postgres services
+  service:
+    name: postgresql
+    state: restarted
+
+- name: Config postgres user
+  postgresql_user: 
+    user: replica
+    password: "{{ vault }}"
+    role_attr_flags: Replication
+    login_user: postgres
+    login_host: "{{ ansible_ssh_host }}"
+
+- name: Restart postgres services
+  service:
+    name: postgresql
+    state: restarted

@@ -1,0 +1,26 @@
+---
+# tasks file for postgresql
+- name: Install Postgresql and Requirment
+  apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
+      - libpq-dev
+    state: present
+    update_cache: yes
+
+- name: Start Postgres Services
+  service:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: postgres config
+  include_tasks:
+    file: postgresql_config.yml
+    
+- name: Restart postgres services
+  service:
+    name: postgresql
+    state: restarted

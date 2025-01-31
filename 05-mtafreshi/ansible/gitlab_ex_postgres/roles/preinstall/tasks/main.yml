@@ -1,0 +1,41 @@
+---
+# tasks file for preinstall
+- name: Set timezone
+  timezone:
+    name: Etc/UTC
+
+- name: Set hostname
+  hostname:
+    name: "{{ inventory_hostname }}" 
+
+- name: Add hostname to hosts (Line-1)
+  lineinfile:
+    path: "{{ hosts_path }}"
+    regexp: '^127\.0\.1\.1'
+    line: '127.0.1.1 {{ inventory_hostname }}'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Add hostname to hosts (Line-2)
+  lineinfile:
+    path: "{{ hosts_path }}"
+    regexp: '^127\.0\.0\.1'
+    line: '127.0.0.1 {{ inventory_hostname }}'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Add hostname
+  lineinfile:
+    path: "{{ hosts_path }}"
+    line: "{{ hostvars[item].ansible_host }} {{item}}"
+    state: present
+  when: hostvars[item].ansible_host is defined  
+  with_items: "{{ groups.all }}"
+
+- name: Set DNS
+  template:
+    src: resolv.conf.j2
+    dest: "{{ resolv }}"
+

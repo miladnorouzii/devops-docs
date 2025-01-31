@@ -1,0 +1,24 @@
+hosts_path: "/etc/hosts"
+resolv: "/etc/resolv.conf"
+postgresql_path: "/etc/postgresql/{{ pversion }}/main/postgresql.conf"
+pg_hba_path: "/etc/postgresql/{{ pversion }}/main/pg_hba.conf"
+postgresql_var_path: "/var/lib/postgresql/{{ pversion }}/main"
+pversion: "16"
+gitlab_package_path: "/tmp/gitlab-ce/"
+gitlab_package_path_host: "/home/{{ username }}/"
+gitlab_package_deb: "/tmp/gitlab-ce/gitlab-ce_17.8.0-ce.0_amd64.deb"
+gitlab_rb: "/etc/gitlab/gitlab.rb"
+vault: "~/{{ cpath }}/gitlab_ex_postgres/inventory/group_vars/vault.txt"
+
+
+# Variable
+cpath: "workspace/devops-docs/05-mtafreshi/ansible"
+username: "mohsen"
+prefix: 24
+
+
+# DNS Config (SHEKAN)
+
+shekan_dns:
+  - 10.202.10.202
+  - 10.202.10.102

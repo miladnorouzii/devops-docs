@@ -1,0 +1,61 @@
+---
+- name: Set IP postgresql
+  lineinfile:
+    path: "{{ postgresql_path }}"
+    regexp: "^#listen_addresses = 'localhost'"
+    line: "listen_addresses = '{{ output_file.stdout }}'"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Set IP pg_hba
+  lineinfile:
+    path: "{{ pg_hba_path }}"
+    regexp: "^host    all             all             127.0.0.1/32            scram-sha-256"
+    line: "host    all             all             {{ output_file.stdout }}/32            trust"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Restart postgres services
+  service:
+    name: postgresql
+    state: restarted
+
+- name: Config_postgres_db
+  postgresql_db:
+    db: zabbix
+    login_user: postgres
+    login_host: "{{ output_file.stdout }}"
+
+- name: Config postgres user
+  postgresql_user:
+    db: zabbix 
+    user: zabbix
+    password: "{{ vault }}"
+    login_user: postgres
+    login_host: "{{ output_file.stdout }}"
+
+- name: Config postgres privs
+  postgresql_privs:
+    db: zabbix
+    state: present
+    roles: zabbix
+    privs: ALL
+    objs: public
+    type: schema
+    login_user: postgres
+    login_host: "{{ output_file.stdout }}"
+
+- name: ZCAT
+  shell: |
+      zcat /usr/share/zabbix-sql-scripts/postgresql/server.sql.gz | sudo -u zabbix psql zabbix
+
+- name: Add Password in Database Config File
+  lineinfile:
+    path: "{{ db }}"
+    regexp: '^# DBPassword='
+    line: 'DBPassword={{ vault }}'
+    owner: root
+    group: root
+    mode: 0644

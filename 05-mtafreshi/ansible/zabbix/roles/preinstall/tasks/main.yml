@@ -1,0 +1,44 @@
+---
+# tasks file for basic
+
+- name: Set timezone
+  timezone:
+    name: Etc/UTC
+
+- name: Set hostname
+  command: hostnamectl set-hostname {{ inventory_hostname }} 
+
+- name: Add hostname to "{{ etc_hosts_path }}"
+  lineinfile:
+    path: "{{ etc_hosts_path }}"
+    regexp: '^127\.0\.1\.1'
+    line: '127.0.1.1 {{ inventory_hostname }}'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Add hostname to "{{ etc_hosts_path }}"
+  lineinfile:
+    path: "{{ etc_hosts_path }}"
+    regexp: '^127\.0\.0\.1'
+    line: '127.0.0.1 {{ inventory_hostname }}'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: apt update and Preinstall Tools
+  apt:
+    name:
+      - net-tools
+    state: present
+    update_cache: yes
+
+- name: Download deb Package
+  get_url:
+    url: "{{ url }}"
+    dest: "{{ zabbix_package_path }}"
+
+- name: Install deb Package
+  apt:
+    deb: "{{ zabbix_package_path }}"
+

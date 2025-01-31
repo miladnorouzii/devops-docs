@@ -1,0 +1,16 @@
+hosts_path: "/etc/hosts"
+resolv: "/etc/resolv.conf"
+postgresql_path: "/etc/postgresql/{{ pversion }}/main/postgresql.conf"
+pg_hba_path: "/etc/postgresql/{{ pversion }}/main/pg_hba.conf"
+postgresql_var_path: "/var/lib/postgresql/{{ pversion }}/main"
+backup_var_path: "/var/lib/postgresql/{{ pversion }}/main-old"
+pversion: "16"
+vault: ~/{{ cpath }}/postgresql_ha/inventory/group_vars/vault.txt
+cpath: "workspace/devops-docs/05-mtafreshi/ansible"
+
+
+# DNS Config (SHEKAN)
+
+shekan_dns:
+  - 10.202.10.202
+  - 10.202.10.102

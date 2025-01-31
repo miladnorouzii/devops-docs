@@ -1,0 +1,27 @@
+- hosts: all
+  roles:
+    - role: preinstall
+  gather_facts: yes
+  any_errors_fatal: true
+  become: true
+
+- hosts: gitlab
+  roles:
+    - role: gitlab
+  gather_facts: yes
+  any_errors_fatal: true
+  become: true
+
+- hosts: postgres
+  roles:
+    - role: postgresql
+  gather_facts: yes
+  any_errors_fatal: true
+  become: true
+
+- hosts: gitlab
+  roles:
+    - role: start_gitlab
+  gather_facts: yes
+  any_errors_fatal: true
+  become: true
