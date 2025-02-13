@@ -1,0 +1,57 @@
+- name: Set timezone
+  timezone:
+    name: Etc/UTC
+
+- name: Set hostname
+  hostname:
+    name: "{{ inventory_hostname }}" 
+
+- name: Add hostname to hosts (Line-1)
+  lineinfile:
+    path: "{{ hosts_path }}"
+    regexp: '^127\.0\.1\.1'
+    line: '127.0.1.1 {{ inventory_hostname }}'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Add hostname to hosts (Line-2)
+  lineinfile:
+    path: "{{ hosts_path }}"
+    regexp: '^127\.0\.0\.1'
+    line: '127.0.0.1 {{ inventory_hostname }}'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Add hostname
+  lineinfile:
+    path: "{{ hosts_path }}"
+    line: "{{ hostvars[item].ansible_host }} {{item}}"
+    state: present
+  when: hostvars[item].ansible_host is defined  
+  with_items: "{{ groups.all }}"
+
+- name: Unlink resolv_conf
+  file:
+    src: /run/systemd/resolve/stub-resolv.conf
+    dest: "{{ resolve }}"
+    owner: root
+    group: root
+    state: absent
+
+- name: Create resolv_conf
+  ansible.builtin.file:
+    path: "{{ resolve }}"
+    state: present
+
+- name: Set DNS
+  template:
+    src: resolv.conf.j2
+    dest: "{{ resolve }}"
+
+- name: apt update
+  apt:
+    - nload
+    - iputils-ping
+  update_cache: yes
