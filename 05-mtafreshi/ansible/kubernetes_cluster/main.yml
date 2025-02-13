@@ -1,0 +1,28 @@
+- hosts: all
+  roles:
+    - role: preinstall
+    - role: install
+  gather_facts: yes
+  any_errors_fatal: true
+  become: true
+
+- hosts: master
+  roles:
+    - role: init_cluster
+  gather_facts: yes
+  any_errors_fatal: true
+  become: true
+
+- hosts: ha
+  roles:
+    - role: join_ha
+  gather_facts: yes
+  any_errors_fatal: true
+  become: true
+
+- hosts: worker
+  roles:
+    - role: join_worker
+  gather_facts: yes
+  any_errors_fatal: true
+  become: true
