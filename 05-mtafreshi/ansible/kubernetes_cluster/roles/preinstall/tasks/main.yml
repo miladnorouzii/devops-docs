@@ -50,8 +50,15 @@
     src: resolv.conf.j2
     dest: "{{ resolve }}"
 
-- name: apt update
+- name: apt update and install package
   apt:
-    - nload
-    - iputils-ping
-  update_cache: yes
+    pkg:
+      - nload
+      - iputils-ping
+      - ca-certificates
+      - curl
+      - apt-transport-https
+      - conntrack
+      - gpg
+    state: latest
+    update_cache: yes

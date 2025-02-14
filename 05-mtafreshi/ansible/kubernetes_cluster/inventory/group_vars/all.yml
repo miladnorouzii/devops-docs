@@ -1,0 +1,14 @@
+hosts_path: "/etc/hosts"
+resolve: "/etc/resolv.conf"
+fstab: "/etc/fstab"
+docker: "/etc/apt/sources.list.d/docker.list"
+containerd: "/etc/containerd/config.toml"
+sysctl: "/etc/sysctl.conf"
+kubernetes_minor_version: "1.30"
+
+
+# DNS Config (SHEKAN)
+
+shekan_dns:
+  - 185.206.92.250
+  - 10.202.10.202

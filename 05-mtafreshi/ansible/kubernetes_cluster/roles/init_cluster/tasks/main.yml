@@ -1,0 +1,26 @@
+- name: Check admin_conf
+  stat:
+    path: /etc/kubernetes/admin.conf
+  register: __admin
+
+- name: initialize cluster (Flannel)
+  shell: kubeadm init --control-plane-endpoint {{ groups['master']['private_ip'] }} --apiserver-advertise-address={{ groups['master']['private_ip'] }} --pod-network-cidr 10.244.0.0/16
+  register: result
+  until: result.stdout.find("Your Kubernetes master has initialized successfully!") != -1
+  when: not __admin.stat.exists
+
+- name: cpoy admin_config
+  shell: |
+    mkdir -p $HOME/.kube
+    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    sudo chown $(id -u):$(id -g) $HOME/.kube/config
+  when: not __admin.stat.exists
+
+- name: Config Flannel Network
+  shell: kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+
+- name: Autocompletion
+  shell: |
+    kubectl completion bash > /etc/bash_completion.d/kubectl
+    kubeadm completion bash > /etc/bash_completion.d/kubeadm
+    source /etc/bash_completion
