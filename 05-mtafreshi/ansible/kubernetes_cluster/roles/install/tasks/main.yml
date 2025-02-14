@@ -1,0 +1,139 @@
+- name: SWAP off
+  command: swapoff -a
+  register: __cmd_res
+  when: __cmd_res.rc != 0
+
+- name: Disable SWAP
+  lineinfile:
+    path: "{{ fstab }}"
+    regexp: '^/swap.img'
+    line: '#/swap.img      none    swap    sw      0       0'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Check Docker List
+  stat:
+    path: "{{ docker }}"
+  register: docker_list
+
+- name: Docker GPG Key
+  shell: |
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  when: docker_list.stat.exists == False
+
+- name: apt update and install Docker package
+  apt:
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: latest
+    update_cache: yes
+
+- name: Check containerd configuration
+  stat:
+    path: /etc/containerd/config.toml
+  register: __containerd_toml_checksum_before
+
+- name: Generate containerd config file
+  shell: containerd config default > /etc/containerd/config.toml
+  register: __containerd_config
+  when: __containerd_config.rc != 0
+
+- name: Restart containerd services
+  service:
+    name: containerd
+    state: restarted
+
+- name: Edit Containerd Config
+  lineinfile:
+    path: "{{ containerd }}"
+    regexp: '^SystemdCgroup = false'
+    line: '#SystemdCgroup = true'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Restart containerd services
+  service:
+    name: containerd
+    state: restarted
+
+- name: Load containerd modules
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - overlay
+    - br_netfilter
+
+- name: Add modprobe file
+  copy:
+    dest: /etc/modules-load.d/modules.conf
+    content: |
+      overlay
+      br_netfilter
+
+- name: Edit Sysctl Config
+  lineinfile:
+    path: "{{ sysctl }}"
+    regexp: '^#net.ipv4.ip_forward=1'
+    line: 'net.ipv4.ip_forward=1'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Reload Sysctl
+  shell: |
+    sudo sysctl -p
+    sudo sysctl --system
+
+- name: Check if repo already exists
+  stat:
+    path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  register: __kubernetes_apt_key
+
+- name: Install the key
+  shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_minor_version }}/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  when: not __kubernetes_apt_key.stat.exists
+
+- name: Check if repo already exists
+  stat:
+    path: /etc/apt/sources.list.d/kubernetes.list
+  register: __kubernetes_apt_source
+
+- name: Install the repo
+  shell: "echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_minor_version }}/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list"
+  when: not __kubernetes_apt_source.stat.exists
+
+- name: apt update and policy kubeadm
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: Hold kube package
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: Enable kubelet services
+  service:
+    name: kubelet
+    state: enabled
