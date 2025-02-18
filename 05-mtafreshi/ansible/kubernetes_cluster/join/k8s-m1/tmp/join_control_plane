@@ -1,1 +1,0 @@
-kubeadm join 192.168.10.50:6443 --token qst01t.togzqut1fiaport4 --discovery-token-ca-cert-hash sha256:70e2b23d13015cc62065454db8d321557c3263af41961bca2372aadc6528fdb2  --control-plane --certificate-key 0102ee497363a5842687b641c7e3c576d189998e5d909235d28d4dddd4ead97f
