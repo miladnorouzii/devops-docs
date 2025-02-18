@@ -4,23 +4,66 @@
   register: __admin
 
 - name: initialize cluster (Flannel)
-  shell: kubeadm init --control-plane-endpoint {{ groups['master']['private_ip'] }} --apiserver-advertise-address={{ groups['master']['private_ip'] }} --pod-network-cidr 10.244.0.0/16
+  shell: "kubeadm init --control-plane-endpoint {{ hostvars[item].private_ip }} --apiserver-advertise-address={{ hostvars[item].private_ip }} --pod-network-cidr 10.244.0.0/16"
   register: result
-  until: result.stdout.find("Your Kubernetes master has initialized successfully!") != -1
   when: not __admin.stat.exists
+  with_items: "{{ groups.master }}"
 
-- name: cpoy admin_config
-  shell: |
-    mkdir -p $HOME/.kube
-    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-    sudo chown $(id -u):$(id -g) $HOME/.kube/config
-  when: not __admin.stat.exists
+- name: mkdir .kube
+  file:
+    path: $HOME/.kube
+    state: directory
+
+- name: copy admin_conf
+  copy:
+    remote_src: yes
+    src: /etc/kubernetes/admin.conf
+    dest: $HOME/.kube/config
+    owner: root
+    group: root
+    mode: '600'
 
 - name: Config Flannel Network
   shell: kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 
-- name: Autocompletion
+- name: Autocompletion-1
   shell: |
     kubectl completion bash > /etc/bash_completion.d/kubectl
+
+- name: Autocompletion-2
+  shell: |
     kubeadm completion bash > /etc/bash_completion.d/kubeadm
-    source /etc/bash_completion
+
+- name: Generate JOIN Command
+  shell: "kubeadm token create --print-join-command"
+  register: join_command_output
+
+- name: Generate Certificate Key
+  shell: "kubeadm init phase upload-certs --upload-certs"
+  register: certificate_key_output
+
+- name: JOIN Variable
+  set_fact:
+    join_command: "{{ join_command_output.stdout }}" 
+    certificate_key: "{{ certificate_key_output.stdout_lines[-1] }}"
+
+- name: Create JOIN Control Plane
+  shell: echo "{{ join_command }} --control-plane --certificate-key {{ certificate_key }}" > /tmp/join_control_plane
+
+- name: Create JOIN Worker
+  shell: echo "{{ join_command }}" > /tmp/join_worker
+
+- name: Pull Commands Files
+  fetch:
+    src: /tmp/join_control_plane
+    dest: join
+
+- name: Pull Commands Files
+  fetch:
+    src: /tmp/join_worker
+    dest: join
+
+- name: Pause for 5 minutes to build app cache
+  ansible.builtin.pause:
+    minutes: 5
+

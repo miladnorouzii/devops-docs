@@ -1,7 +1,5 @@
 - name: SWAP off
   command: swapoff -a
-  register: __cmd_res
-  when: __cmd_res.rc != 0
 
 - name: Disable SWAP
   lineinfile:
@@ -40,33 +38,37 @@
     update_cache: yes
 
 - name: Check containerd configuration
-  stat:
-    path: /etc/containerd/config.toml
-  register: __containerd_toml_checksum_before
+  stat: 
+    path: /etc/containerd/config.bak
+  register: checksum
+  
+- block:
 
-- name: Generate containerd config file
-  shell: containerd config default > /etc/containerd/config.toml
-  register: __containerd_config
-  when: __containerd_config.rc != 0
-
-- name: Restart containerd services
-  service:
-    name: containerd
-    state: restarted
-
-- name: Edit Containerd Config
-  lineinfile:
-    path: "{{ containerd }}"
-    regexp: '^SystemdCgroup = false'
-    line: '#SystemdCgroup = true'
-    owner: root
-    group: root
-    mode: 0644
-
-- name: Restart containerd services
-  service:
-    name: containerd
-    state: restarted
+  - name: Generate containerd config file
+    shell: |
+      cp /etc/containerd/config.toml /etc/containerd/config.bak
+      containerd config default > /etc/containerd/config.toml
+  
+  - name: Restart containerd services
+    service:
+      name: containerd
+      state: restarted
+  
+  - name: Edit Containerd Config
+    lineinfile:
+      path: "{{ containerd }}"
+      regexp: '^SystemdCgroup = false'
+      line: 'SystemdCgroup = true'
+      owner: root
+      group: root
+      mode: 0644
+  
+  - name: Restart containerd services
+    service:
+      name: containerd
+      state: restarted
+      
+  when: not checksum.stat.exists
 
 - name: Load containerd modules
   community.general.modprobe:
@@ -136,4 +138,4 @@
 - name: Enable kubelet services
   service:
     name: kubelet
-    state: enabled
+    enabled: true

@@ -34,16 +34,14 @@
 
 - name: Unlink resolv_conf
   file:
-    src: /run/systemd/resolve/stub-resolv.conf
-    dest: "{{ resolve }}"
-    owner: root
-    group: root
+    #src: /run/systemd/resolve/stub-resolv.conf
+    path: "{{ resolve }}"
     state: absent
 
 - name: Create resolv_conf
-  ansible.builtin.file:
+  file:
     path: "{{ resolve }}"
-    state: present
+    state: touch
 
 - name: Set DNS
   template:
