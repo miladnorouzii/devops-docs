@@ -41,3 +41,18 @@ spec:
             requests:
               memory: "64Mi"
               cpu: "250m"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: my-ns
+  name: ubuntu
+  labels:
+    app.kubernetes.io/name: app-dev
+spec:
+  containers:
+    - name: ubuntu
+      image: ubuntu
+      command: ["/bin/bash", "-c", "sleep 5000"]
+      ports:
+        - containerPort: 80
