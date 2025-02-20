@@ -38,6 +38,11 @@ spec:
           envFrom:
             - configMapRef:
                 name: sematec-website
+          env:
+            - name: BANK_URL
+              value: https://bmi.iran.gov.ir
+            - name: SMS_URL
+              value: http://sms.bmi.iran.gov.ir
           resources:
             limits:
               memory: "128Mi"
