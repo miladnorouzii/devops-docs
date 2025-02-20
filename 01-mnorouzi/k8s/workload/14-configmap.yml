@@ -8,7 +8,9 @@ data:
 
     user  nginx;
     worker_processes  auto;
-
+    ####################################################
+    #       Added by Milad #############################
+    ####################################################
     error_log  /var/log/nginx/error.log notice;
     pid        /var/run/nginx.pid;
 

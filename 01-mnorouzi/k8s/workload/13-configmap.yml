@@ -33,8 +33,15 @@ spec:
         app.kubernetes.io/env: development
     spec:
       containers:
-        - name: app-dev
-          image: 9350733512/app:v.10.0.0
+        - name: nginx
+          image: nginx
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
           envFrom:
             - configMapRef:
                 name: sematec-website
@@ -43,10 +50,11 @@ spec:
               value: https://bmi.iran.gov.ir
             - name: SMS_URL
               value: http://sms.bmi.iran.gov.ir
-          resources:
-            limits:
-              memory: "128Mi"
-              cpu: "500m"
-            requests:
-              memory: "64Mi"
-              cpu: "250m"
+          volumeMounts:
+          - name: nginx-conf
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx-conf
