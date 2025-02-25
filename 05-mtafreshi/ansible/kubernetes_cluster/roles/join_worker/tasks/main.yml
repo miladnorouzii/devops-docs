@@ -1,7 +1,8 @@
 - name: Push to Other Worker
   copy:
-    src: join/k8s-m1/tmp/
+    src: "join/{{ inventory_hostname }}/tmp/"
     dest: /tmp/
+  with_items: "{{ groups.master }}"
 
 - name: check JOIN Worker
   stat:

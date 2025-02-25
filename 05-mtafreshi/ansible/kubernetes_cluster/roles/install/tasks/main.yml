@@ -57,7 +57,7 @@
   - name: Edit Containerd Config
     lineinfile:
       path: "{{ containerd }}"
-      regexp: '^SystemdCgroup = false'
+      regexp: '^SystemdCgroup'
       line: 'SystemdCgroup = true'
       owner: root
       group: root
