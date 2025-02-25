@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mycronjob
+  namespace: my-ns
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: mycronjob
+              image: alpine
+              command:
+              - /bin/sh
+              - "-c"
+              - date; echo hello world form kuberntets
+          restartPolicy: Never
