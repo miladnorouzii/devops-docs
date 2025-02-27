@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   gitlab:
-    image: "gitlab/gitlab-ce:17.0.0-ce.0"
+    image: "gitlab/gitlab-ce:17.7.0-ce.0"
     hostname: "gitlab"
     container_name: "gitlab"
     restart: always
