@@ -1,0 +1,62 @@
+---
+- name: Check containerd configuration
+  stat: 
+    path: /etc/containerd/config.bak
+  register: checksum
+  
+- block:
+
+  - name: Generate containerd config file
+    shell: |
+      cp /etc/containerd/config.toml /etc/containerd/config.bak
+      containerd config default > /etc/containerd/config.toml
+  
+  - name: Restart containerd services
+    service:
+      name: containerd
+      state: restarted
+  
+  - name: Edit Containerd Config
+    lineinfile:
+      path: "{{ containerd }}"
+      regexp: '^            SystemdCgroup'
+      line: '            SystemdCgroup = true'
+      owner: root
+      group: root
+      mode: 0644
+  
+  - name: Restart containerd services
+    service:
+      name: containerd
+      state: restarted
+      
+  when: not checksum.stat.exists
+
+- name: Load containerd modules
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - overlay
+    - br_netfilter
+
+- name: Add modprobe file
+  copy:
+    dest: /etc/modules-load.d/modules.conf
+    content: |
+      overlay
+      br_netfilter
+
+- name: Edit Sysctl Config
+  lineinfile:
+    path: "{{ sysctl }}"
+    regexp: '^#net.ipv4.ip_forward=1'
+    line: 'net.ipv4.ip_forward=1'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Reload Sysctl
+  shell: |
+    sudo sysctl -p
+    sudo sysctl --system

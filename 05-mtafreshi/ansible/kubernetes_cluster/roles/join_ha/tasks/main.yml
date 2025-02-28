@@ -11,3 +11,7 @@
 - name: JOIN
   shell: "{{ join.stdout }}"      
 
+- name: Pause for 2 minutes to build app cache
+  ansible.builtin.pause:
+    minutes: 2
+    

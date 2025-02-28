@@ -20,6 +20,6 @@
 
   when: not __pki.stat.exists
 
-- name: Pause for 5 minutes to build app cache
+- name: Pause for 2 minutes to build app cache
   ansible.builtin.pause:
     minutes: 2

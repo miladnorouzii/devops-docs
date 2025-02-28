@@ -1,0 +1,41 @@
+---
+- name: Check if repo already exists
+  stat:
+    path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  register: __kubernetes_apt_key
+
+- name: Install the key
+  shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_minor_version }}/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  when: not __kubernetes_apt_key.stat.exists
+
+- name: Check if repo already exists
+  stat:
+    path: /etc/apt/sources.list.d/kubernetes.list
+  register: __kubernetes_apt_source
+
+- name: Install the repo
+  shell: "echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_minor_version }}/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list"
+  when: not __kubernetes_apt_source.stat.exists
+
+- name: apt update and policy kubeadm
+  apt:
+    pkg:
+      - kubelet=1.30.10-1.1
+      - kubeadm=1.30.10-1.1
+      - kubectl=1.30.10-1.1
+    state: present
+    update_cache: yes
+
+- name: Hold kube package
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: Enable kubelet services
+  service:
+    name: kubelet
+    enabled: true

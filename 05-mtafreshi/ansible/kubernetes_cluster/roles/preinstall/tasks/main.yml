@@ -34,7 +34,6 @@
 
 - name: Unlink resolv_conf
   file:
-    #src: /run/systemd/resolve/stub-resolv.conf
     path: "{{ resolve }}"
     state: absent
 
@@ -48,15 +47,20 @@
     src: resolv.conf.j2
     dest: "{{ resolve }}"
 
-- name: apt update and install package
+- name: apt update
   apt:
-    pkg:
-      - nload
-      - iputils-ping
-      - ca-certificates
-      - curl
-      - apt-transport-https
-      - conntrack
-      - gpg
-    state: latest
     update_cache: yes
+    
+- name: install requirment package
+  apt:
+    name: "{{ item }}"
+    state: present
+    allow_downgrade: yes
+  loop:
+    - nload
+    - iputils-ping
+    - ca-certificates=20240203
+    - curl=8.5.0-2ubuntu10.6
+    - apt-transport-https=2.7.14build2
+    - conntrack=1:1.4.8-1ubuntu1
+    - gpg=2.4.4-2ubuntu17
