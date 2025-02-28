@@ -1,6 +1,6 @@
 - name: Push to Other Worker
   copy:
-    src: "join/{{ inventory_hostname }}/tmp/"
+    src: "join/{{ hostvars[item].inventory_hostname_short }}/tmp/"
     dest: /tmp/
   with_items: "{{ groups.master }}"
 

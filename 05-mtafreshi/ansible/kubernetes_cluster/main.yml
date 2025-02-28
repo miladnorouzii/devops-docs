@@ -1,17 +1,18 @@
-- hosts: master
-  roles:
-    - role: preinstall
-    - role: install
-    - role: init_cluster
-  gather_facts: yes
-  any_errors_fatal: true
-  become: true
+hosts: master
+roles:
+  - role: preinstall
+  - role: install
+  - role: init_cluster
+gather_facts: yes
+any_errors_fatal: true
+become: true
 
 - hosts: master
   roles:
-    - role: Generate_join
+    - role: generate_join
   gather_facts: yes
   any_errors_fatal: true
+  become: true
 
 - hosts: worker
   roles:

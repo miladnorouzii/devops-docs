@@ -57,8 +57,8 @@
   - name: Edit Containerd Config
     lineinfile:
       path: "{{ containerd }}"
-      regexp: '^SystemdCgroup'
-      line: 'SystemdCgroup = true'
+      regexp: '^            SystemdCgroup'
+      line: '            SystemdCgroup = true'
       owner: root
       group: root
       mode: 0644
@@ -119,12 +119,12 @@
 
 - name: apt update and policy kubeadm
   apt:
-    name: "{{ item }}"
+    pkg:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: latest
     update_cache: yes
-  loop:
-    - kubelet
-    - kubeadm
-    - kubectl
 
 - name: Hold kube package
   dpkg_selections:
