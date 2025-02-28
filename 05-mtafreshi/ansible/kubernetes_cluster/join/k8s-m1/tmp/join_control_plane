@@ -1,1 +1,0 @@
-kubeadm join k8s.local:6443 --token eh5ghn.aeig75jb4cn5iqry --discovery-token-ca-cert-hash sha256:b974fb11333dae2c9bb1df695c0a082533ab18fd6525cd5f38a214302a2b6967  --control-plane --certificate-key a1062faa9a4a2ce59e95d562022b80f18f1b883f513b4396d08f487ee95fb705
