@@ -1,0 +1,32 @@
+- name: Install HAProxy Packages
+  apt:
+    pkg:
+      - keepalived
+      - haproxy
+      - psmisc
+    state: present
+    update_cache: true
+
+- name: Configuration HAProxy
+  
+- name: Restart HAProxy
+  service: 
+    name: haproxy
+  state: restarted
+
+- name: Enable HAProxy
+  service:
+    name: haproxy
+    enabled: true
+
+- name: Configuration KeepAlived
+
+- name: Restart KeepAlived
+  service: 
+    name: keepalived
+  state: restarted
+
+- name: Enable KeepAlived
+  service:
+    name: keepalived
+    enabled: true
