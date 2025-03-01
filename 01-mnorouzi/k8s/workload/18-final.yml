@@ -98,4 +98,3 @@ spec:
               service:
                 name: sematec-website
                 port:
-                  number: 80
