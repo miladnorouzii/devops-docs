@@ -3,19 +3,17 @@ kind: Namespace
 metadata:
   name: app1-ns
 ---
-apiVersion: v1
 kind: ConfigMap
+apiVersion: v1
 metadata:
   name: sematec-website
   namespace: app1-ns
   labels:
-    app.kubernetes.io/name: sematec-website
-    app.kubernetes.io/env: development
+    name: sematec-website
+    instance: sematec-website
 data:
-  API_URL: https://api.sematec.ir
-  APP_URL: http://app.sematec.ir
-  DB_HOST: db_host1.sematec.local
-  DB_USER: DB_USER
+  API_URL: https://sematec.ir
+  APP_URL: https://sematec.ir
 ---
 apiVersion: v1
 kind: Service
@@ -23,8 +21,8 @@ metadata:
   name: sematec-website
   namespace: app1-ns
   labels:
-    app.kubernetes.io/name: sematec-website
-    app.kubernetes.io/env: development
+    name: sematec-website
+    instance: sematec-website
 spec:
   type: ClusterIP
   ports:
@@ -33,8 +31,8 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app.kubernetes.io/name: sematec-website
-    app.kubernetes.io/env: development
+    name: sematec-website
+    instance: sematec-website
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -42,42 +40,36 @@ metadata:
   name: sematec-website
   namespace: app1-ns
   labels:
-    app.kubernetes.io/name: sematec-website
-    app.kubernetes.io/env: development
+    name: sematec-website
+    instance: sematec-website
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
-      app.kubernetes.io/name: sematec-website
-      app.kubernetes.io/env: development
+      name: sematec-website
+      instance: sematec-website
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: sematec-website
-        app.kubernetes.io/env: development
+        name: sematec-website
+        instance: sematec-website
     spec:
       containers:
-        - name: nginx
-          image: nginx
-          resources:
-            limits:
-              memory: "128Mi"
-              cpu: "500m"
-            requests:
-              memory: "64Mi"
-              cpu: "250m"
+        - name: sematec-website
+          image: 'nginx:1.25'
           envFrom:
             - configMapRef:
                 name: sematec-website
           env:
-            - name: BANK_URL
-              value: https://bmi.iran.gov.ir
-            - name: SMS_URL
-              value: http://sms.bmi.iran.gov.ir
+            - name: CLIENT_API_URL
+              value: 'https://sematec.ir'
+            - name: SERVER_API_URL
+              value: 'http://sematec-api/api/'
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
+          imagePullPolicy: IfNotPresent
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -85,11 +77,15 @@ metadata:
   name: sematec-website
   namespace: app1-ns
   labels:
-    app.kubernetes.io/name: sematec-website
-    app.kubernetes.io/env: development
+    name: sematec-website
+    instance: sematec-website
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    #nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    #nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE ,PATCH
+    #nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    #nginx.ingress.kubernetes.io/enable-cors: "true"
 spec:
   ingressClassName: nginx
   rules:
@@ -103,5 +99,3 @@ spec:
                 name: sematec-website
                 port:
                   number: 80
-
-
