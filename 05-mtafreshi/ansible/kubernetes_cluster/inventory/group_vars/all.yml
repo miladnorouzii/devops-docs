@@ -1,3 +1,9 @@
+# haproxy with keepAlived
+haproxy: "/etc/haproxy/haproxy.cfg"
+backup_haproxy: "/etc/haproxy/haproxy.bak"
+keepalived: "/etc/keepalived/keepalived.conf"
+
+# kubernetes_cluster
 hosts_path: "/etc/hosts"
 resolve: "/etc/resolv.conf"
 fstab: "/etc/fstab"
@@ -5,7 +11,6 @@ docker: "/etc/apt/sources.list.d/docker.list"
 containerd: "/etc/containerd/config.toml"
 sysctl: "/etc/sysctl.conf"
 kubernetes_minor_version: "1.30"
-
 
 # DNS Config (SHEKAN)
 
@@ -15,3 +20,18 @@ shekan_dns:
   - 85.15.1.15  
   - 185.206.92.250
   #- 10.202.10.202
+
+# HAProxy LoadBalancer
+eth: "ens34"      # Interface for check
+haproxy_srv1: "192.168.10.41"     #IP Address Server-1
+haproxy_srv2: "192.168.10.42"     #IP Address Server-2
+
+virtual_ip:
+  #- Virtual IP for Listen Request
+  - 192.168.10.40
+
+control_plane:
+  #- "server_name" "server_IP"
+  - k8s-m1 192.168.10.50
+  - k8s-m2 192.168.10.51
+  - k8s-m3 192.168.10.52
