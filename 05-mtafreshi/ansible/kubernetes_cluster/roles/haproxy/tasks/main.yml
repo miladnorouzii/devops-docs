@@ -1,3 +1,56 @@
+- name: Set timezone
+  timezone:
+    name: Etc/UTC
+
+- name: Set hostname
+  hostname:
+    name: "{{ inventory_hostname }}" 
+
+- name: Add hostname to hosts (Line-1)
+  lineinfile:
+    path: "{{ hosts_path }}"
+    regexp: '^127\.0\.1\.1'
+    line: '127.0.1.1 {{ hostvars[item].ansible_host }}'
+    owner: root
+    group: root
+    mode: 0644
+  when: hostvars[item].ansible_host is defined  
+  with_items: "{{ groups.haproxy }}"
+
+- name: Add hostname to hosts (Line-2)
+  lineinfile:
+    path: "{{ hosts_path }}"
+    regexp: '^127\.0\.0\.1'
+    line: '127.0.0.1 {{ hostvars[item].ansible_host }}'
+    owner: root
+    group: root
+    mode: 0644
+  when: hostvars[item].ansible_host is defined  
+  with_items: "{{ groups.haproxy }}"
+
+- name: Add hostname
+  lineinfile:
+    path: "{{ hosts_path }}"
+    line: "{{ hostvars[item].ansible_host }} {{item}}"
+    state: present
+  when: hostvars[item].ansible_host is defined  
+  with_items: "{{ groups.all }}"
+
+- name: Unlink resolv_conf
+  file:
+    path: "{{ resolve }}"
+    state: absent
+
+- name: Create resolv_conf
+  file:
+    path: "{{ resolve }}"
+    state: touch
+
+- name: Set DNS
+  template:
+    src: resolv.conf.j2
+    dest: "{{ resolve }}"
+
 - name: Install HAProxy Packages
   apt:
     pkg:
@@ -7,26 +60,10 @@
     state: present
     update_cache: true
 
-- name: Configuration HAProxy
-  
-- name: Restart HAProxy
-  service: 
-    name: haproxy
-  state: restarted
+- name: Load_Balancer_Config
+  include_tasks:
+    file: Load_Balancer.yml
 
-- name: Enable HAProxy
-  service:
-    name: haproxy
-    enabled: true
-
-- name: Configuration KeepAlived
-
-- name: Restart KeepAlived
-  service: 
-    name: keepalived
-  state: restarted
-
-- name: Enable KeepAlived
-  service:
-    name: keepalived
-    enabled: true
+- name: KeepAlived_Config
+  include_tasks:
+    file: keepalived_config.yml
