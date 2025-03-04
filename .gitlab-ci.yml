@@ -9,7 +9,8 @@ deploy-dev:
   before_script:
     - mkdir -p ~/.ssh
     - echo "$DEPLOYER_PRIVATE_KEY" >> ~/.ssh/id_ed25519
-    - chmood 600 ~/.ssh/id_ed25519
+    - cat ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
     - ls
     - pwd
     - echo 'hello'
