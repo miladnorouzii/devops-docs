@@ -9,12 +9,8 @@
     src: haproxy.cfg.j2
     dest: "{{ haproxy }}"
 
-- name: Restart HAProxy
+- name: Restart and Enable HAProxy
   service: 
     name: haproxy
-  state: restarted
-
-- name: Enable HAProxy
-  service:
-    name: haproxy
+    state: restarted
     enabled: true

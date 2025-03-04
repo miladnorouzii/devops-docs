@@ -23,10 +23,6 @@ vrrp_instance haproxy-vip {
     auth_type PASS
     auth_pass 1111
   }
-  unicast_src_ip {{ haproxy_srv1 }}      # The IP address of this machine
-  unicast_peer {
-    {{ haproxy_srv2 }}                         # The IP address of peer machines                        
-  }
 
   virtual_ipaddress {
     {% for item in virtual_ip %}

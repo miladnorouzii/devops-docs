@@ -1,3 +1,10 @@
+- hosts: haproxy
+  roles:
+    - role: lb
+  gather_facts: yes
+  any_errors_fatal: true
+  become: true
+
 - hosts: master
   roles:
     - role: preinstall

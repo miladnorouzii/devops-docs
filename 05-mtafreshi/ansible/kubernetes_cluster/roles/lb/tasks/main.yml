@@ -1,0 +1,20 @@
+- name: requirement
+  include_tasks:
+    file: requirement.yml
+
+- name: Install HAProxy Packages
+  apt:
+    pkg:
+      - keepalived
+      - haproxy
+      - psmisc
+    state: latest
+    update_cache: true
+
+- name: Load_Balancer_Config
+  include_tasks:
+    file: Load_Balancer.yml
+
+- name: KeepAlived_Config
+  include_tasks:
+    file: keepalived_config.yml

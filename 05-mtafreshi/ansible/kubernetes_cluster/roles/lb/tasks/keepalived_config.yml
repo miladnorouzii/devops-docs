@@ -1,0 +1,22 @@
+- name: Create keepalived.conf
+  file:
+    path: "{{ keepalived }}"
+    state: touch
+
+- name: Configuration KeepAlived LoadBalancer-1
+  template:
+    src: keepalived_srv.j2
+    dest: "{{ keepalived }}"
+  #delegate_to: 
+
+#- name: Configuration KeepAlived LoadBalancer-2
+  #template:
+  #  src: keepalived_srv2.j2
+  #  dest: "{{ keepalived }}"
+  #delegate_to: 
+
+- name: Restart and Enable KeepAlived
+  service: 
+    name: keepalived
+    state: restarted
+    enabled: true
