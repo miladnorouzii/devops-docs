@@ -1,0 +1,20 @@
+- name: Copy issue.net to remote servers
+  copy:
+    src: issue.net
+    dest: "{{ issue_net_path }}"
+   # dest: "/etc/issue.net"
+
+- name: Add banner to sshd config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^Banner'
+    line: 'Banner /etc/issue.net'
+  notify: Restart ssh service
+
+
+
+- name: Add MOTD banner to /etc/motd
+  copy:
+    src: motd.txt
+    dest: /etc/motd
+  notify: Restart ssh service

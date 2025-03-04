@@ -1,0 +1,11 @@
+etc_hosts_path: "/etc/hosts"
+db: "/etc/zabbix/zabbix_server.conf"
+url: "https://repo.zabbix.com/zabbix/{{ version }}/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest+ubuntu24.04_all.deb"
+version: "6.0"
+zabbix_package_path: /home/mohsen/{{ zabbix_package }}
+zabbix_package: zabbix-release_latest+ubuntu24.04_all.deb
+postgresql_path: /etc/postgresql/{{ pversion }}/main/postgresql.conf
+pg_hba_path: /etc/postgresql/{{ pversion }}/main/pg_hba.conf
+pversion: "16"
+vault: ~/{{ cpath }}/zabbix/roles/basic/files/vault.txt
+cpath: "workspace/devops-docs/05-mtafreshi/ansible"

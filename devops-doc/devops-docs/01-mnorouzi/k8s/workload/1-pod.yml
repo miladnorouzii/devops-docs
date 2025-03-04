@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: my-ns
+  name: nginx-1
+  labels:
+    app: app1
+    version: v1.1.1
+    app.kubernetes.io/name: app-dev
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.26
+      ports:
+        - containerPort: 80
+

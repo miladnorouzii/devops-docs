@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-ns
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: my-ns
+  name: app
+spec:
+  containers:
+    - name: c01
+      image: ubuntu
+      command: ["/bin/bash", "-c", "while true; do echo hello-c01111111; sleep 2; done"]
+    - name: c02
+      image: ubuntu
+      command: ["/bin/bash", "-c", "while true; do echo hello-c02222222; sleep 2; done"]
+    - name: c03
+      image: rockylinux:9.3
+      command:
+        - /bin/bash
+        - -c
+        - while true; do echo hello-c03333333; sleep 2; done
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: my-ns
+  name: nginx-1
+  labels:
+    app: app1
+    version: v1.1.1
+    app.kubernetes.io/name: app-dev
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.26
+      ports:
+        - containerPort: 80

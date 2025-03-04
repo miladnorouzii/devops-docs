@@ -1,0 +1,44 @@
+---
+- name: config postgresql
+  lineinfile:
+    path: "{{ postgresql_path }}"
+    regexp: "^#listen_addresses = 'localhost'"
+    line: 'listen_addresses = {{item}}'
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ groups.postgres }}"
+
+- name: Set IP pg_hba for Access
+  lineinfile:
+    path: "{{ pg_hba_path }}"
+    regexp: "^host    all             all             127.0.0.1/32            scram-sha-256"
+    line: "host    all             all             {{ ansible_ssh_host }}/32            trust"
+
+- name: config pg_hba
+  lineinfile:
+    path: "{{ pg_hba_path }}"
+    line: 'host    all          postgres         {{ ansible_ssh_host }}/{{ prefix }}                md5'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Restart postgres services
+  service:
+    name: postgresql
+    state: restarted
+
+- name: Config_postgres_db
+  postgresql_db:
+    db: gitlabhq_production
+    login_user: postgres
+    login_host: "{{ ansible_ssh_host }}"
+
+- name: Config postgres user
+  postgresql_user:
+    db: gitlabhq_production 
+    user: postgres
+    password: 123456
+    login_user: postgres
+    login_host: "{{ ansible_ssh_host }}"
+

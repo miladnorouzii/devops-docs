@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  gitlab-runner:
+    container_name: "gitlab-runner_container"
+    restart: always
+    hostname: "gitlab-runner_container"
+    image: gitlab/gitlab-runner:alpine
+    volumes:
+      - /data/gitlab-runner/etc:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/hosts:/etc/hosts
+    networks:
+      - gitlab-network
+
+networks:
+  gitlab-network:
+    name: gitlab-network
+    # network_mode: host
+    ## add gitlab address to /etc/hosts of gitlab-runner container
+    # extra_hosts:
+    #   - "gitlab.sematec.com:10.16.28.88"

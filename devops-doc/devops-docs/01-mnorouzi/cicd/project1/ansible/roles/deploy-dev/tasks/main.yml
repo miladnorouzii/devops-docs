@@ -1,0 +1,13 @@
+- name: Create directory
+  file:
+    path: /opt/project1
+    state: directory
+
+- name: Sync repository to remote server
+  ansible.posix.synchronize:
+    src: 
+    dest: /opt/project1
+
+- name: Run main script on server
+  shell:
+    cmd: cd "/opt/project1" && bash main.sh

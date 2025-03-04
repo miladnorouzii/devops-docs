@@ -1,0 +1,39 @@
+---
+- name: change external_url
+  lineinfile:
+    path: "{{ gitlab_rb }}"
+    regexp: "^external_url 'http://gitlab.example.com'"
+    line: "external_url 'http://{{item}}'"
+  with_items: "{{ groups.gitlab }}"
+
+- name: change gitlab config 1
+  lineinfile:
+    path: "{{ gitlab_rb }}"
+    line: "postgresql['enable'] = false"
+
+- name: change gitlab config 2
+  lineinfile:
+    path: "{{ gitlab_rb }}"
+    line: "gitlab_rails['db_adapter'] = \"postgresql\""
+
+- name: change gitlab config 3
+  lineinfile:
+    path: "{{ gitlab_rb }}"
+    line: "gitlab_rails['db_encoding'] = \"unicode\""
+
+- name: change gitlab config 4
+  lineinfile:
+    path: "{{ gitlab_rb }}"
+    line: "gitlab_rails['db_host'] = \"{{item}}\""
+  with_items: "{{ groups.postgres }}"
+
+- name: change gitlab config 5
+  lineinfile:
+    path: "{{ gitlab_rb }}"
+    line: "gitlab_rails['db_password'] = \"123456\""
+
+- name: change gitlab config 6
+  lineinfile:
+    path: "{{ gitlab_rb }}"
+    line: "gitlab_rails['db_username'] = \"postgres\""
+    

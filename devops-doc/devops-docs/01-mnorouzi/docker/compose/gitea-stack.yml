@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+  db:
+    container_name: postgres_db
+    image: postgres:alpine
+    environment:
+      - POSTGRES_USER=gitea
+      - POSTGRES_PASSWORD=gitea
+      - POSTGRES_DB=gitea
+    restart: always
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    expose:
+      - 5432
+
+  gitea:
+    container_name: gitea
+    image: gitea/gitea:1.23
+    environment:
+      - DB_TYPE=postgres
+      - DB_HOST=db:5432
+      - DB_NAME=gitea
+      - DB_USER=gitea
+      - DB_PASSWORD={db_password}
+    restart: always
+    volumes:
+      - git_data:/data
+    ports:
+      - 80:3000
+      - 22:22
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        #delay: 30s
+        order: start-first
+      #restart_policy:
+        #condition: any
+        #delay: 20s
+        #window: 60s
+      placement:
+         constraints: [node.hostname == gitea]
+volumes:
+  git_data:
+  db_data:
+
+

@@ -1,0 +1,91 @@
+---
+- name: Install nginx on servers
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install nginx on all servers
+      apt:
+        name: nginx
+        state: latest
+
+    - name: print a ip address
+      debug:
+        var: "ansible_all_ipv4_addresses"
+
+    - name: print boot image
+      debug:
+        var: "ansible_cmdline.BOOT_IMAGE"
+
+    - name: execute shell command
+      shell: hostname -I
+      register: shell_output
+
+    - name: Display the output
+      debug:
+        msg: "the output of command is: {{ shell_output.stdout }}"
+
+    - name: Check if file exists
+      shell: ls /home/milad
+      register: file_check
+      ignore_errors: yes
+
+    - name: print file exist message
+      debug:
+        msg: "file exist"
+      when: file_check.rc == 0
+
+    - name: print file does not exist
+      debug:
+        msg: "file does not exist"
+      when: file_check.rc != 0
+
+    - name: install package on Debian base system
+      apt:
+        name:
+          - vim
+          - sl
+          - git
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: install package on Debian base system
+      apt:
+        name: ["vim", "git", "nginx"]
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: install package on Debian base system
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - sl
+        - git
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: install package on Redhat base system
+      yum:
+        name: vim
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
+########## Copy
+    - name: copy file form local to servers
+      copy:
+        src: /home/file1.txt
+        dest: /opt/ansible_file1.txt
+        owner: milad
+        group: milad
+        mode: '0777'
+
+########### service
+    - name: Restart nginx service
+      service:
+        name: nginx
+        state: restarted
+        enabled: yes
+

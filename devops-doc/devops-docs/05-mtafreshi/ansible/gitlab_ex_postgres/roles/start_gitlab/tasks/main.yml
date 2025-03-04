@@ -1,0 +1,18 @@
+---
+# tasks file for start_gitlab
+#- name: Slave- Check if database is standing by
+#  stat:
+#    path: "{{ backup_var_path }}"
+#  register: backup_status
+
+- name: run gitlab-ctl reconfigure
+  command: gitlab-ctl reconfigure
+
+- name: get the initial root password
+  shell: |
+    grep 'Password:' /etc/gitlab/initial_root_password | sed -e 's/Password\: \(.*\)/\1/'
+  register: initial_root_password
+
+- name: show password for user root
+  debug:
+    msg: "Password for USER 'root' is: {{ initial_root_password.stdout }}"

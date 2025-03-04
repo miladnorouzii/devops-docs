@@ -1,0 +1,29 @@
+---
+# tasks file for gitlab
+- name: apt update and install package
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - openssh-server
+      - postfix
+      - tzdata
+      - perl
+    state: present
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: push gitlab-ce to host
+  ansible.posix.synchronize:
+    src: "{{ gitlab_package_path }}"
+    dest: "{{ gitlab_package_path }}"
+  register: sync_files
+
+- name: install gitlab-ce
+  apt:
+    deb: "{{ gitlab_package_deb }}"
+  become: true
+
+- name: gitlab config
+  include_tasks:
+    file: gitlab_config.yml
