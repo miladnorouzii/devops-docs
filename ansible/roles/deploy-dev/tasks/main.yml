@@ -1,6 +1,6 @@
-- name: print "{{ palybook_dir }}"
+- name: print msg
   debug:
-    meg: directory is "{{ palybook_dir }}"
+    meg: directory is test
 
 - name: Create directory
   file:
