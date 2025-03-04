@@ -4,7 +4,7 @@
 
 - name: Create directory
   ansible.builtin.file:
-    path: /opt/project1
+    path: /opt/project123
     state: directory
 
 - name: Sync repository to remote server
