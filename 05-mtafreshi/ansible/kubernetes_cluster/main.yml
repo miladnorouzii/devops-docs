@@ -5,37 +5,37 @@
   any_errors_fatal: true
   become: true
 
-- hosts: master
-  roles:
-    - role: preinstall
-    - role: install
-    - role: init_cluster
-  gather_facts: yes
-  any_errors_fatal: true
-  become: true
-  
-- hosts: master
-  roles:
-    - role: generate_join
-  gather_facts: yes
-  any_errors_fatal: true
-  become: true
-  
-- hosts: worker
-  roles:
-    - role: preinstall
-    - role: install
-    - role: join_worker
-  gather_facts: yes
-  any_errors_fatal: true
-  become: true
-  
-- hosts: ha
-  roles:
-    - role: preinstall
-    - role: install
-    - role: join_ha
-  gather_facts: yes
-  any_errors_fatal: true
-  become: true
+    #- hosts: master
+    #  roles:
+    #    - role: preinstall
+    #    - role: install
+    #    - role: init_cluster
+    #  gather_facts: yes
+    #  any_errors_fatal: true
+    #  become: true
+    #  
+    #- hosts: master
+    #  roles:
+    #    - role: generate_join
+    #  gather_facts: yes
+    #  any_errors_fatal: true
+    #  become: true
+    #  
+    #- hosts: worker
+    #  roles:
+    #    - role: preinstall
+    #    - role: install
+    #    - role: join_worker
+    #  gather_facts: yes
+    #  any_errors_fatal: true
+    #  become: true
+    #  
+    #- hosts: ha
+    #  roles:
+    #    - role: preinstall
+    #    - role: install
+    #    - role: join_ha
+    #  gather_facts: yes
+    #  any_errors_fatal: true
+    #  become: true
 

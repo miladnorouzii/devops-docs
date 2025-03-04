@@ -28,10 +28,10 @@ haproxy_srv2: "192.168.10.42"     #IP Address Server-2
 
 virtual_ip:
   #- Virtual IP for Listen Request
-  - 192.168.10.40
+  - 192.168.10.40/24
 
-#control_plane:
+control_plane:
   #- "server_name" "server_IP"
-  #- k8s-m1 192.168.10.50
-  #- k8s-m2 192.168.10.51
-  #- k8s-m3 192.168.10.52
+  - k8s-m1 192.168.10.50
+  - k8s-m2 192.168.10.51
+  - k8s-m3 192.168.10.52

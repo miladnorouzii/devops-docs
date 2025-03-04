@@ -4,39 +4,34 @@
   timezone:
     name: Etc/UTC
 
-- block:
+- name: Set hostname
+  hostname:
+    name: "{{ inventory_hostname }}" 
 
-  - name: Set hostname
-    hostname:
-      name: "{{ hostvars[item].ansible_host }}" 
+- name: Add hostname to hosts (Line-1)
+  lineinfile:
+    path: "{{ hosts_path }}"
+    regexp: '^127\.0\.1\.1'
+    line: '127.0.1.1 {{ inventory_hostname }}'
+    owner: root
+    group: root
+    mode: 0644  
 
-  - name: Add hostname to hosts (Line-1)
-    lineinfile:
-      path: "{{ hosts_path }}"
-      regexp: '^127\.0\.1\.1'
-      line: '127.0.1.1 {{ hostvars[item].ansible_host }}'
-      owner: root
-      group: root
-      mode: 0644  
-    with_items: "{{ groups.haproxy }}"
+- name: Add hostname to hosts (Line-2)
+  lineinfile:
+    path: "{{ hosts_path }}"
+    regexp: '^127\.0\.0\.1'
+    line: '127.0.0.1 {{ inventory_hostname }}'
+    owner: root
+    group: root
+    mode: 0644  
 
-  - name: Add hostname to hosts (Line-2)
-    lineinfile:
-      path: "{{ hosts_path }}"
-      regexp: '^127\.0\.0\.1'
-      line: '127.0.0.1 {{ hostvars[item].ansible_host }}'
-      owner: root
-      group: root
-      mode: 0644  
-    with_items: "{{ groups.haproxy }}"
-
-  - name: Add Other hosts
-    lineinfile:
-      path: "{{ hosts_path }}"
-      line: "{{ hostvars[item].ansible_host }} {{item}}"
-      state: present  
-    with_items: "{{ groups.all }}"
-
+- name: Add Other hosts
+  lineinfile:
+    path: "{{ hosts_path }}"
+    line: "{{ hostvars[item].ansible_host }} {{item}}"
+    state: present  
+  with_items: "{{ groups.all }}"
   when: hostvars[item].ansible_host is defined
 
 - name: Unlink resolv_conf

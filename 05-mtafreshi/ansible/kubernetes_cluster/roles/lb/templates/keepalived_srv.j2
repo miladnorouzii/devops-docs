@@ -25,9 +25,9 @@ vrrp_instance haproxy-vip {
   }
 
   virtual_ipaddress {
-    {% for item in virtual_ip %}
-    server {{ item }}:6443 check        # The VIP address
-    {% endfor %}                  
+  {% for item in virtual_ip %}
+  {{ item }}        # The VIP address
+  {% endfor %}                  
   }
 
   track_script {
