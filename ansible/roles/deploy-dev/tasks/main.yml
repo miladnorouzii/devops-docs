@@ -1,3 +1,7 @@
+- name: print "{{ palybook_dir }}"
+  debug:
+    meg: directory is "{{ palybook_dir }}"
+
 - name: Create directory
   file:
     path: /opt/project1
