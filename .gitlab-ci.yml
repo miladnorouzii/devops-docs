@@ -7,7 +7,9 @@ deploy-dev:
   image: 9350733512/ansible:0.0.2
 
   before_script:
-    - echo "$DEPLOYER_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - echo "$DEPLOYER_PRIVATE_KEY" >> ~/.ssh/id_ed25519
+    - chmood 600 ~/.ssh/id_ed25519
     - ls
     - pwd
     - echo 'hello'
