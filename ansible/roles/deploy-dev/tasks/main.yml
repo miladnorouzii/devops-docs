@@ -3,7 +3,7 @@
     msg: directory is test
 
 - name: Create directory
-  file:
+  ansible.builtin.file:
     path: /opt/project1
     state: directory
 
