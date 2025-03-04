@@ -14,4 +14,4 @@
 
 - name: Run main script on server
   shell:
-    cmd: cd "/opt/project1" && bash main.sh
+    cmd: cd "/opt/project1/project1" && bash main.sh
