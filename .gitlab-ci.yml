@@ -1,0 +1,15 @@
+stages:
+  - deploy-dev
+  - deploy-prod
+
+deploy-dev:
+  stage: deploy-dev
+  image: 9350733512/ansible:0.0.2
+
+  before_script:
+    - ls
+    - pwd
+    - echo 'hello'
+
+  script:
+    - cd ansible && ls -lah
