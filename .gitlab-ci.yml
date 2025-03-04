@@ -12,4 +12,4 @@ deploy-dev:
     - echo 'hello'
 
   script:
-    - cd ansible && ls -lah
+    - cd ansible && ansible-playbook -i inventory/server-dev.ini deploy.yml --become --become-method=sudo

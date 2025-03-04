@@ -5,7 +5,7 @@
 
 - name: Sync repository to remote server
   ansible.posix.synchronize:
-    src: 
+    src: /builds/milad/project1
     dest: /opt/project1
 
 - name: Run main script on server
