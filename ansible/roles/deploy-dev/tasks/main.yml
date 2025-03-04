@@ -1,6 +1,6 @@
 - name: print msg
   debug:
-    meg: directory is test
+    msg: directory is test
 
 - name: Create directory
   file:
