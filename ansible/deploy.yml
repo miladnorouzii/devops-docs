@@ -1,6 +1,6 @@
 - hosts: all
   roles:
     - role: deploy-dev
-  gather_facts: yes
+  gather_facts: False
   any_errors_fatal: true
   become: true
