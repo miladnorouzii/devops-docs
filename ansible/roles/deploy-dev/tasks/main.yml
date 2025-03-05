@@ -1,0 +1,17 @@
+- name: print msg
+  debug:
+    msg: directory is test
+
+- name: Create directory
+  ansible.builtin.file:
+    path: /opt/project1
+    state: directory
+
+- name: Sync repository to remote server
+  ansible.posix.synchronize:
+    src: /builds/milad/project1
+    dest: /opt/project1
+
+- name: Run main script on server
+  shell:
+    cmd: cd "/opt/project1/project1" && bash main.sh
