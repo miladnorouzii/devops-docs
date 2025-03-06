@@ -20,3 +20,22 @@ deploy-dev:
 
   script:
     - cd ansible && ansible-playbook -i inventory/server-dev.ini deploy-dev.yml --become --become-method=sudo
+
+deploy-prod:
+  stage: deploy-prod
+  image: 9350733512/ansible:0.0.3
+  variables:
+    ANSIBLE_FORCE_COLOR: true
+
+  before_script:
+    - mkdir -p ~/.ssh
+    - echo "$DEPLOYER_PRIVATE_KEY" >> ~/.ssh/id_ed25519
+    - cat ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - ls
+    - pwd
+    - echo 'hello'
+
+  script:
+    - cd ansible && ansible-playbook -i inventory/server-prod.ini deploy-dev.yml --become --become-method=sudo
