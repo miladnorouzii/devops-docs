@@ -5,6 +5,8 @@ stages:
 deploy-dev:
   stage: deploy-dev
   image: 9350733512/ansible:0.0.3
+  variables:
+    ANSIBLE_FORCE_COLOR: true
 
   before_script:
     - mkdir -p ~/.ssh
