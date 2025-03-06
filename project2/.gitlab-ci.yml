@@ -1,0 +1,20 @@
+stages:
+  - Build
+  - Deploy
+
+build:
+  stage: Build
+  image: docker
+  script:
+    - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_PASSWORD" # https://reg.sudoix.local/
+    - docker build -t 9350733512/project2:$CI_PIPELINE_ID .
+    - docker push 9350733512/project2:$CI_PIPELINE_ID
+
+deploy:
+   stage: Deploy
+   before_script:
+    - mkdir -p ~/.ssh
+    - echo "$DEPLOYER_PRIVATE_KEY" >> ~/.ssh/id_ed25519
+    - cat ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
