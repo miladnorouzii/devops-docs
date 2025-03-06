@@ -1,0 +1,5 @@
+- hosts: all
+  roles:
+    - role: deploy-prod
+  gather_facts: False
+  any_errors_fatal: true
