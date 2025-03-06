@@ -38,4 +38,4 @@ deploy-prod:
     - echo 'hello'
 
   script:
-    - cd ansible && ansible-playbook -i inventory/server-prod.ini deploy-dev.yml --become --become-method=sudo
+    - cd ansible && ansible-playbook -i inventory/server-prod.ini deploy-prod.yml --become --become-method=sudo
