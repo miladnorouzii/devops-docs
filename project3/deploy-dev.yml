@@ -32,3 +32,59 @@ spec:
     name: devops-website
     instance: devops-website
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-website
+  namespace: dev-ns
+  labels:
+    name: devops-website
+    instance: devops-website
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: devops-website
+      instance: devops-website
+  template:
+    metadata:
+      labels:
+        name: devops-website
+        instance: devops-website
+    spec:
+      containers:
+        - name: devops-website
+          image: '9350733512/app:latest'
+          envFrom:
+            - configMapRef:
+                name: devops-website
+          env:
+            - name: DEVOPS_ENV
+              value: development
+          ports:
+            - containerPort: 80
+              protocol: TCP
+              name: http
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: devops-website
+  namespace: dev-ns
+  labels:
+    name: devops-website
+    instance: devops-website
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: "app.devops.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: devops-website
+                port:
+                  number: 80
