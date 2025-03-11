@@ -5,6 +5,8 @@ variables:
 stages:
   - Build-dev
   - Deploy-dev
+  - Build-prod
+  - Deploy-prod
 
 
 build-dev:
@@ -14,6 +16,8 @@ build-dev:
     - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_PASSWORD" # https://reg.sudoix.local/
     - docker build -t 9350733512/$IMAGE_NAME:$CI_PIPELINE_ID .
     - docker push 9350733512/$IMAGE_NAME:$CI_PIPELINE_ID
+  only:
+    - dev
 
 deploy-dev:
   stage: Deploy-dev
@@ -26,6 +30,32 @@ deploy-dev:
     - cat ~/.kube/config
     - sed -i "s/latest/$CI_PIPELINE_ID/g" deployment/dev/deploy.yml
     - kubectl -n dev-ns apply -f deployment/dev/deploy.yml
+  only:
+    - dev
 
+######################### PROD #########################
+build-prod:
+  stage: Build-prod
+  image: docker
+  script:
+    - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_PASSWORD" # https://reg.sudoix.local/
+    - docker build -t 9350733512/$IMAGE_NAME:$CI_COMMIT_TAG .
+    - docker push 9350733512/$IMAGE_NAME:$CI_COMMIT_TAG
+  only:
+    - tags
 
+deply-prod:
+  stage: Deploy-prod
+  image: dtzar/helm-kubectl:3.17
+  script:
+    - mkdir -p ~/.kube
+    - chmod 700 ~/.kube
+    - echo "$KUBE_CONFIG" > ~/.kube/config
+    # - echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+    - cat ~/.kube/config
+    - sed -i "s/latest/$CI_COMMIT_TAG/g" deployment/prod/deploy.yml
+    - kubectl -n prod-ns apply -f deployment/prod/deploy.yml
+  only:
+    - tags
+  when: manual
 
