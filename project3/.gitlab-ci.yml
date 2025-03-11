@@ -22,6 +22,7 @@ deploy-dev:
     - mkdir -p ~/.kube
     - chmod 700 ~/.kube
     - echo "$KUBE_CONFIG" > ~/.kube/config
+    # - echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
     - cat ~/.kube/config
     - sed -i "s/latest/$CI_PIPELINE_ID/g" deployment/dev/deploy.yml
     - kubectl -n dev-ns apply -f deployment/dev/deploy.yml
