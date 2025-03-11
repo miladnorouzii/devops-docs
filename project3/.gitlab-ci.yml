@@ -1,8 +1,12 @@
 variables:
   IMAGE_NAME: app
+
+
 stages:
   - Build-dev
   - Deploy-dev
+
+
 build-dev:
   stage: Build-dev
   image: docker
@@ -10,4 +14,17 @@ build-dev:
     - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_PASSWORD" # https://reg.sudoix.local/
     - docker build -t 9350733512/$IMAGE_NAME:$CI_PIPELINE_ID .
     - docker push 9350733512/$IMAGE_NAME:$CI_PIPELINE_ID
+
+deploy-dev:
+  stage: Deploy-dev
+  image: dtzar/helm-kubectl:3.17
+  script:
+    - mkdir -p ~/.kube
+    - chmod 700 ~/.kube
+    - echo "$KUBE_CONFIG" > ~/.kube/config
+    - cat ~/.kube/config
+    - sed -i "s/latest/$CI_PIPELINE_ID/g" deployment/dev/deploy.yml
+    - kubectl -n dev-ns apply -f deployment/dev/deploy.yml
+
+
 
