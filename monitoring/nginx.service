@@ -1,0 +1,21 @@
+cat > /etc/systemd/system/nginx_log_checker.service
+[Unit]
+Description=Nginx http log checker and push to pushgateway
+After=network.target
+
+[Service]
+User=root
+Group=root
+Type=simple
+ExecStart=/opt/nginx_http_status.sh
+
+[Install]
+WantedBy=multi-user.target
+
+#############################################################3
+systemctl daemon-reload 
+systemctl start nginx_log_checker.service 
+systemctl status nginx_log_checker.service 
+systemctl enable nginx_log_checker.service 
+systemctl status nginx_log_checker.service 
+
