@@ -47,6 +47,16 @@ services:
     networks:
       - prometheus
 
+  pushgateway:
+    image: prom/pushgateway:latest
+    container_name: pushgateway
+    hostname: pushgateway
+    restart: always
+    ports:
+      - '9091:9091'
+    networks:
+      - prometheus
+
 networks:
   prometheus:
 
